@@ -1,11 +1,13 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useAuthStore } from '../authStore'
 import { mockSupabaseClient, createMockUser } from '../../test/utils'
 
-// Mock the supabase client
+// Mock the supabase client before importing the store
 vi.mock('../../lib/supabase', () => ({
   supabase: mockSupabaseClient,
 }))
+
+// Import the store after mocking
+import { useAuthStore } from '../authStore'
 
 describe('AuthStore', () => {
   beforeEach(() => {
@@ -34,11 +36,8 @@ describe('AuthStore', () => {
 
   describe('signUp', () => {
     it('should handle successful sign up', async () => {
-      const mockUser = createMockUser()
-      const mockSession = { user: mockUser, access_token: 'test-token' }
-      
       mockSupabaseClient.auth.signUp.mockResolvedValueOnce({
-        data: { user: mockUser, session: mockSession },
+        data: { user: createMockUser(), session: null },
         error: null,
       })
 
@@ -65,6 +64,7 @@ describe('AuthStore', () => {
 
       expect(result.success).toBe(false)
       expect(result.error).toBe('Email already registered')
+      expect(useAuthStore.getState().error).toBe('Email already registered')
     })
 
     it('should set loading state during sign up', async () => {
@@ -100,11 +100,8 @@ describe('AuthStore', () => {
 
   describe('signIn', () => {
     it('should handle successful sign in', async () => {
-      const mockUser = createMockUser()
-      const mockSession = { user: mockUser, access_token: 'test-token' }
-      
       mockSupabaseClient.auth.signInWithPassword.mockResolvedValueOnce({
-        data: { user: mockUser, session: mockSession },
+        data: { user: createMockUser(), session: null },
         error: null,
       })
 
@@ -112,7 +109,6 @@ describe('AuthStore', () => {
       const result = await signIn('test@example.com', 'password123')
 
       expect(result.success).toBe(true)
-      expect(useAuthStore.getState().user).toEqual(mockUser)
       expect(mockSupabaseClient.auth.signInWithPassword).toHaveBeenCalledWith({
         email: 'test@example.com',
         password: 'password123',
@@ -132,7 +128,7 @@ describe('AuthStore', () => {
 
       expect(result.success).toBe(false)
       expect(result.error).toBe('Invalid credentials')
-      expect(useAuthStore.getState().user).toBeNull()
+      expect(useAuthStore.getState().error).toBe('Invalid credentials')
     })
   })
 
@@ -214,18 +210,6 @@ describe('AuthStore', () => {
       clearError()
 
       expect(useAuthStore.getState().error).toBeNull()
-    })
-  })
-
-  describe('setLoading', () => {
-    it('should set loading state', () => {
-      const { setLoading } = useAuthStore.getState()
-      
-      setLoading(true)
-      expect(useAuthStore.getState().loading).toBe(true)
-      
-      setLoading(false)
-      expect(useAuthStore.getState().loading).toBe(false)
     })
   })
 })

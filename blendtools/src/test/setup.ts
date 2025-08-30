@@ -1,6 +1,9 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
-import { afterEach, beforeAll } from 'vitest'
+import { afterEach, beforeAll, vi } from 'vitest'
+
+// Make vi global
+Object.assign(global, { vi })
 
 // Setup for testing environment
 beforeAll(() => {
