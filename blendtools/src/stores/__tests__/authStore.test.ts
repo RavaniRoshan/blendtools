@@ -146,7 +146,7 @@ describe('AuthStore', () => {
       expect(mockSupabaseClient.auth.signInWithOAuth).toHaveBeenCalledWith({
         provider: 'github',
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: 'http://localhost:3000/auth/callback',
         },
       })
     })

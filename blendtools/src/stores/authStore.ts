@@ -99,10 +99,14 @@ export const useAuthStore = create<AuthState>()(
         set({ loading: true, error: null })
         
         try {
+          const redirectTo = typeof window !== 'undefined' 
+            ? `${window.location.origin}/auth/callback`
+            : 'http://localhost:3000/auth/callback'
+            
           const { error } = await supabase.auth.signInWithOAuth({
             provider,
             options: {
-              redirectTo: `${window.location.origin}/auth/callback`
+              redirectTo
             }
           })
           

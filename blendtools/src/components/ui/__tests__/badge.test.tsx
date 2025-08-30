@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { screen } from '@testing-library/react'
-import { render } from '../../test/utils'
+import { screen, render } from '@testing-library/react'
 import { Badge } from '../badge'
 
 describe('Badge', () => {

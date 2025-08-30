@@ -1,7 +1,7 @@
 import React, { ReactElement, ReactNode } from 'react'
 import { render, RenderOptions } from '@testing-library/react'
 import { BrowserRouter } from 'react-router-dom'
-import { ThemeProvider } from '../components/theme-provider'
+import { vi } from 'vitest'
 
 // Mock Supabase client for testing
 export const mockSupabaseClient = {
@@ -43,9 +43,7 @@ interface AllTheProvidersProps {
 const AllTheProviders = ({ children }: AllTheProvidersProps) => {
   return (
     <BrowserRouter>
-      <ThemeProvider defaultTheme="light" storageKey="vite-ui-theme">
-        {children}
-      </ThemeProvider>
+      {children}
     </BrowserRouter>
   )
 }

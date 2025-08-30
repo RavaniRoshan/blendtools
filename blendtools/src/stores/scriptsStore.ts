@@ -11,6 +11,7 @@ type ScriptUpdate = Database['public']['Tables']['scripts']['Update']
 interface ScriptsState {
   // State
   scripts: Script[]
+  filteredScripts: Script[]
   currentScript: Script | null
   loading: boolean
   error: string | null
@@ -28,7 +29,8 @@ interface ScriptsState {
   searchScripts: (query: string) => Promise<void>
   setSearchQuery: (query: string) => void
   setCategoryFilter: (category: string) => void
-  setRatingFilter: (rating: number | null) => void
+  setRatingFilter: (rating: number) => void
+  applyFilters: () => void
   clearError: () => void
   clearCurrentScript: () => void
   subscribeToChanges: () => () => void
@@ -39,12 +41,13 @@ export const useScriptsStore = create<ScriptsState>()(
     subscribeWithSelector((set, get) => ({
       // Initial state
       scripts: [],
+      filteredScripts: [],
       currentScript: null,
       loading: false,
       error: null,
       searchQuery: '',
-      categoryFilter: '',
-      ratingFilter: null,
+      categoryFilter: 'all',
+      ratingFilter: 0,
 
       // Actions
       fetchScripts: async () => {
@@ -52,7 +55,7 @@ export const useScriptsStore = create<ScriptsState>()(
         
         try {
           const scripts = await scriptService.getScripts()
-          set({ scripts, loading: false })
+          set({ scripts, filteredScripts: scripts, loading: false })
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to fetch scripts'
           set({ loading: false, error: errorMessage })
@@ -157,7 +160,7 @@ export const useScriptsStore = create<ScriptsState>()(
             ? await scriptService.searchScripts(query)
             : await scriptService.getScripts()
           
-          set({ scripts, loading: false })
+          set({ scripts, filteredScripts: scripts, loading: false })
         } catch (err) {
           const errorMessage = err instanceof Error ? err.message : 'Failed to search scripts'
           set({ loading: false, error: errorMessage })
@@ -170,18 +173,28 @@ export const useScriptsStore = create<ScriptsState>()(
 
       setCategoryFilter: (category: string) => {
         set({ categoryFilter: category })
-        
-        // Trigger filtered fetch
-        if (category) {
-          const { fetchScriptsByCategory } = extendStore()
-          fetchScriptsByCategory(category)
-        } else {
-          get().fetchScripts()
-        }
+        get().applyFilters()
       },
 
-      setRatingFilter: (rating: number | null) => {
+      setRatingFilter: (rating: number) => {
         set({ ratingFilter: rating })
+        get().applyFilters()
+      },
+
+      applyFilters: () => {
+        const { scripts, categoryFilter, ratingFilter } = get()
+        
+        let filtered = scripts
+        
+        if (categoryFilter && categoryFilter !== 'all') {
+          filtered = filtered.filter(script => script.category === categoryFilter)
+        }
+        
+        if (ratingFilter && ratingFilter > 0) {
+          filtered = filtered.filter(script => script.rating >= ratingFilter)
+        }
+        
+        set({ filteredScripts: filtered })
       },
 
       clearError: () => {

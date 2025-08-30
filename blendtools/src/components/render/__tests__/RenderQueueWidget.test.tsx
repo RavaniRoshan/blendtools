@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { render, createMockUser, createMockRenderJob } from '../../test/utils'
+import { render, createMockUser, createMockRenderJob } from '../../../test/utils'
 import { RenderQueueWidget } from '../RenderQueueWidget'
-import { useAuthStore } from '../../stores/authStore'
-import { useRenderJobsStore } from '../../stores/renderJobsStore'
+import { useAuthStore } from '../../../stores/authStore'
+import { useRenderJobsStore } from '../../../stores/renderJobsStore'
 
 // Mock the stores
-vi.mock('../../stores/authStore')
-vi.mock('../../stores/renderJobsStore')
+vi.mock('../../../stores/authStore')
+vi.mock('../../../stores/renderJobsStore')
 
 // Mock react-router-dom
 const mockNavigate = vi.fn()

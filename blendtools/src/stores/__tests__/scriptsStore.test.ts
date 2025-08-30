@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useScriptsStore } from '../scriptsStore'
 import { mockSupabaseClient, createMockScript } from '../../test/utils'
 
-// Mock the script service
+// Mock the script service - must be before imports
 vi.mock('../../lib/scriptService', () => ({
   scriptService: {
     getScripts: vi.fn(),
@@ -18,18 +17,12 @@ vi.mock('../../lib/supabase', () => ({
   supabase: mockSupabaseClient,
 }))
 
-const mockScriptService = {
-  getScripts: vi.fn(),
-  getScript: vi.fn(),
-  createScript: vi.fn(),
-  updateScript: vi.fn(),
-  deleteScript: vi.fn(),
-  searchScripts: vi.fn(),
-}
-
 // Import after mocking
-const { scriptService } = await import('../../lib/scriptService')
-Object.assign(scriptService, mockScriptService)
+import { useScriptsStore } from '../scriptsStore'
+import { scriptService } from '../../lib/scriptService'
+
+// Get the mocked service
+const mockScriptService = vi.mocked(scriptService)
 
 describe('ScriptsStore', () => {
   beforeEach(() => {
@@ -230,7 +223,7 @@ describe('ScriptsStore', () => {
       const { setCategoryFilter, setRatingFilter } = useScriptsStore.getState()
       
       setCategoryFilter('utility')
-      setRatingFilter(4.5)
+      setRatingFilter(5.0)  // Only script '3' has rating >= 5.0
 
       const state = useScriptsStore.getState()
       expect(state.filteredScripts).toHaveLength(1)

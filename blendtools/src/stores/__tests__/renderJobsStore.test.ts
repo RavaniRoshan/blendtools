@@ -1,8 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { useRenderJobsStore } from '../renderJobsStore'
 import { mockSupabaseClient, createMockRenderJob, createMockProject } from '../../test/utils'
 
-// Mock the render job service
+// Mock the render job service - must be before imports
 vi.mock('../../lib/renderJobService', () => ({
   renderJobService: {
     getRenderJobs: vi.fn(),
@@ -15,24 +14,17 @@ vi.mock('../../lib/renderJobService', () => ({
   },
 }))
 
-// Mock supabase
+// Mock supabase - must be before imports
 vi.mock('../../lib/supabase', () => ({
   supabase: mockSupabaseClient,
 }))
 
-const mockRenderJobService = {
-  getRenderJobs: vi.fn(),
-  getActiveRenderJobs: vi.fn(),
-  getRenderJob: vi.fn(),
-  createRenderJob: vi.fn(),
-  updateRenderJob: vi.fn(),
-  deleteRenderJob: vi.fn(),
-  cancelRenderJob: vi.fn(),
-}
-
 // Import after mocking
-const { renderJobService } = await import('../../lib/renderJobService')
-Object.assign(renderJobService, mockRenderJobService)
+import { useRenderJobsStore } from '../renderJobsStore'
+import { renderJobService } from '../../lib/renderJobService'
+
+// Get the mocked service
+const mockRenderJobService = vi.mocked(renderJobService)
 
 describe('RenderJobsStore', () => {
   beforeEach(() => {
